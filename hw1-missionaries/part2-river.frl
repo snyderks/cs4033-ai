@@ -1,0 +1,141 @@
+/* 
+ * Kristian Snyder
+ * Solution to the Missionaries and Cannibals problem
+ * To run:
+ * reload "depth_first.frl" (sample file given)
+ * reload "part2-river.frl" (successor function, invalidation testing)
+ * ?((solve_DF (n n n n n n n) (s s s s s s s) S))
+ * ^ means try and move the missionaries, the cannibals, and the boat from the north to the south
+ */
+
+
+/* */
+/* one missionary goes alone - option 1 */
+((path (M1 A B C D E M1) (M2 A B C D E M2))
+       (opp M1 M2)
+       (legal (M2 A B C D E M2)))
+
+/* option 2 */
+((path (A M1 B C D E M1) (A M2 B C D E M2))
+       (opp M1 M2)
+       (legal (A M2 B C D E M2)))
+
+/* option 3 */
+((path (A B M1 C D E M1) (A B M2 C D E M2))
+       (opp M1 M2)
+       (legal (A B M2 C D E M2)))
+
+/* two missionaries go  - option 1 */
+((path (M1 M1 A B C D M1) (M2 M2 A B C D M2))
+       (opp M1 M2)
+       (legal (M2 M2 A B C D M2)))
+
+/* option 2 */
+((path (M1 A M1 B C D M1) (M2 A M2 B C D M2))
+       (opp M1 M2)
+       (legal (M2 A M2 B C D M2)))
+
+/* option 3 */
+((path (A M1 M1 B C D M1) (A M2 M2 B C D M2))
+       (opp M1 M2)
+       (legal (A M2 M2 B C D M2)))
+
+/* */
+/* one cannibal goes alone - option 1 */
+((path (A B C C1 D E C1) (A B C C2 D E C2))
+       (opp C1 C2)
+       (legal (A B C C2 D E M2)))
+
+/* option 2 */
+((path (A B C D C1 E C1) (A B C D C2 E C2))
+       (opp C1 C2)
+       (legal (A B C D C2 E C2)))
+
+/* option 3 */
+((path (A B C D E C1 C1) (A B C D E C2 C2))
+       (opp C1 C2)
+       (legal (A B C D E C2 C2)))
+
+/* two cannibals go - option 1 */
+((path (A B C C1 C1 D C1) (A B C C2 C2 D C2))
+       (opp C1 C2)
+       (legal (A B C C2 C2 D C2)))
+
+/* option 2 */
+((path (A B C C1 D C1 C1) (A B C C2 D C2 C2))
+       (opp C1 C2)
+       (legal (A B C C2 D C2 C2)))
+
+/* option 3 */
+((path (A B C D C1 C1 C1) (A B C D C2 C2 C2))
+       (opp C1 C2)
+       (legal (A B C D C2 C2 C2)))
+
+/* */
+/* one missionary and one cannibal - option 1 */
+((path (X1 A B X1 C D X1) (X2 A B X2 C D X2))
+       (opp X1 X2)
+       (legal (X2 A B X2 C D X2)))
+
+/* option 2 */
+((path (X1 A B C X1 D X1) (X2 A B C X2 D X2))
+       (opp X1 X2)
+       (legal (X2 A B C X2 D X2)))
+
+/* option 3 */
+((path (X1 A B C D X1 X1) (X2 A B C D X2 X2))
+       (opp X1 X2)
+       (legal (X2 A B C D X2 X2)))
+
+/* option 4 */
+((path (A X1 B X1 C D X1) (A X2 B X2 C D X2))
+       (opp X1 X2)
+       (legal (A X2 B X2 C D X2)))
+
+/* option 5 */
+((path (A X1 B C X1 D X1) (A X2 B C X2 D X2))
+       (opp X1 X2)
+       (legal (A X2 B C X2 D X2)))
+
+/* option 6 */
+((path (A X1 B C D X1 X1) (A X2 B C D X2 X2))
+       (opp X1 X2)
+       (legal (A X2 B C D X2 X2)))
+
+/* option 7 */
+((path (A B X1 X1 C D X1) (A B X2 X2 C D X2))
+       (opp X1 X2)
+       (legal (A B X2 X2 C D X2)))
+
+/* option 8 */
+((path (A B X1 C X1 D X1) (A B X2 C X2 D X2))
+       (opp X1 X2)
+       (legal (A B X2 C X2 D X2)))
+
+/* option 9 */
+((path (A B X1 C D X1 X1) (A B X2 C D X2 X2))
+       (opp X1 X2)
+       (legal (A B X2 C D X2 X2)))
+
+/* can't have more missionaries than cannibals */
+((illegal (M1 M2 M2 M1 M1 M2 B))(opp M1 M2))
+((illegal (M1 M2 M2 M1 M2 M1 B))(opp M1 M2))
+((illegal (M1 M2 M2 M2 M1 M1 B))(opp M1 M2))
+
+((illegal (M2 M1 M2 M1 M1 M2 B))(opp M1 M2))
+((illegal (M2 M1 M2 M1 M2 M1 B))(opp M1 M2))
+((illegal (M2 M1 M2 M2 M1 M1 B))(opp M1 M2))
+
+((illegal (M2 M2 M1 M1 M1 M2 B))(opp M1 M2))
+((illegal (M2 M2 M1 M1 M2 M1 B))(opp M1 M2))
+((illegal (M2 M2 M1 M2 M1 M1 B))(opp M1 M2))
+
+% Legal states:
+
+((legal X)(illegal X)(!)(fail))
+((legal _))
+
+/*  north and south are opposite banks */
+((opp n s))
+((opp s n))
+

@@ -1,0 +1,191 @@
+/* The  stopping rule for this condition is obtained when 
+the current path to be expanded starts with the goal node, that is:
+*/
+
+((depthF ((X |T) |  PATHS) (X|T))
+               (goal X))
+
+
+
+
+((depthF (PAth | TPaths) SOL)
+           (expand PAth  NPaths)
+           (append NPaths TPaths NEWPATHS)
+           (depthF NEWPATHS SOL))
+ 
+
+
+
+/*
+The predicate expand is similar to solve_all_wfa from which we will 
+remove the predicates operating on the knowledge base and replace go by 
+path.  That is, from the predicate
+*/
+
+((solve_all_wfa S G SOLUTIONS)
+                             (kill goal)
+                             (addcl ((goal G)) )
+                             (findall P ((go S P (S)))  SOLUTIONS)
+                             (delcl ((goal G)) ))
+
+%we will obtain:
+
+((expand (HPath|TPath) NPaths)
+          (findall  (NEXT HPath|TPath)
+                       ((path HPath NEXT)(negg member NEXT (HPath|TPath)))
+                         NPaths
+               )
+)
+
+%We next wrap this in a top level predicate  solve_BF as follows:
+
+((solve_DF S  G SOL)
+                 (kill goal)
+                 (addcl ((goal G)))
+                 (depthF ((S)) S1)
+                 (reverse S1 SOL)
+                 (pretty_print_solution SOL)
+                 (delcl  ((goal G))  ))
+ 
+
+
+
+/************** lecture example end here ***************/
+
+/*
+
+/* (plan S G) succeeds if there is a solution path through 
+the graph from S to G; the solution will be printed and 
+alternative solutions will be found upon request (backtracking)
+*/
+
+
+((plan S G)
+    (kill goal)
+    (addcl ((goal G)) )
+    (go  (((S 0 0))) P) 
+    (reverse P RP)
+    (pp "solution is")(print RP)
+    (delcl ((goal G)) ))
+
+
+/* (go X Y) succeeds if there is a path Y with no loops from 
+any head nodes of the branches in the ordered list of branches 
+X to the goal node G found in the knowledge base fact (goal G)
+*/
+
+
+((go  ( ( (X HV L) | Y) | R) (X|Y) )
+    (goal X))
+
+((go (X|Y) Z)
+    (move X NL)
+    (rem_dup NL Y NL1 Y1)
+    (put_in_rest NL1 Y1 NP)
+    (go NP Z))
+
+/* 
+((rem_dup X Y A B) succeeds if A and B are two lists of branches wich are formed from the list of brances X and Y respectively, by removing the longer of the two branches in X and Y that go to the same node, if any
+*/
+
+((rem_dup () Y () Y))
+((rem_dup Y () Y ()))
+((rem_dup  (((X Y Z)|P)|ON) (((X Y1 Z1)|P1)|ON1) (((X Y Z)|P)|R) R1)
+     (less Z Z1)
+     (rem_dup ON ON1 R R1))
+
+((rem_dup  (((X Y Z)|P)|ON) (((X Y1 Z1)|P1)|ON1) R (((X Y Z)|P1)|R1))
+     (less Z! Z)
+     (rem_dup ON ON1 R R1))
+
+((rem_dup  (((X Y Z)|P)|ON) (((X1 Y1 Z1)|P1)|ON1) 
+           (((X Y Z)|P)|R) (((X1 Y1 Z1)|P1)|R1))
+     (rem_dup ON ON1 R R1))
+
+/* (move A B) succeeds if B is a sorted list of all 
+possible branches formed by expanding the branch A
+*/
+
+((move ((X HV L)|Z) NL)
+    (paths X Y Z)
+    (new_paths Y L (X|Z) NL))
+
+/*(new_paths NL L PP PB) succeeds if BL is a list of 
+branches obtained from NL when the previous path is PP of length L
+
+*/
+
+((new_paths () L PP () ))
+((new_paths (NN|ON) L PP (((NN HV L1) | PP)|OP))
+    (sum L 1 L1)
+    (heuristic NN L1 HV)
+    (new_paths ON L PP OP))
+
+/* (paths N NL P) succeeds if NL is a list of possible nodes 
+that are connected to the node N and are not in the list P
+*/
+
+((paths N NL P)(isall NL X (path N X)(negg member X P)))
+
+/*
+ note: isall is a builtin predicate; 
+       for example: ?((isall LIST X (member X (a b c))) 
+       returns LIST=(c b a))
+*/
+
+
+/*(put_in_rest X Y Z) succeeds if Z is the ordered list 
+resulting from merging a list of branches X with the ordered 
+list of branches Y
+
+*/
+
+((put_in_rest () Y Y))
+((put_in_rest (X|Y) Z NL)
+   (put_in_list Z X L)
+   (put_in_rest Y L NL))
+
+/*
+(put_in_list X Y Z) succeeds if Y is the sorted list 
+obtained from branch X being put in a list of branches Y
+*/
+
+
+((put_in_list () Y Y))
+((put_in_list Y () (Y)))
+((put_in_list ((X Y Z)|R) (((X1 Y1 Z1)|R1)|L) (((X1 Y1 Z1)|R1)|NL))
+       (less Y1 Y)
+       (put_in_list ((X Y Z)|R) L NL))
+
+
+((put_in_list ((X Y Z)|R) 
+              ( ((X1 Y1 Z1)|R1)|L) (((X Y Z)|R)((X1 Y1 Z1)|R1)|L))
+      (negg less Y1 Y))
+
+
+
+ ((heuristic _ _ 1))
+
+
+*/
+
+
+/* auxiliary predicates */
+
+((member H (H|_)))
+((member X (H|T))(member X T))
+
+((print ())(p success))
+((print (H | T))
+     (p H "--->")
+     (pp)(print T)) 
+
+((reverse () ()))
+((reverse (H|T) R)(reverse T RT)(append RT (H) R))
+
+((append () L L))
+((append (H|T) L2 (H|L))(append T L2 L))
+
+
+((pretty_print_solution () ))
+((pretty_print_solution (H|T))(pp)(p H "->")(pretty_print_solution T))
