@@ -1,0 +1,24 @@
+((length () 0 ))
+((length (_|T) N)
+           (length T N1)
+           (sum N1 1 N))
+
+((append () L L))  %when L1 is () L is the same as L2 
+((append (H1|T1) L2 (H1|T))
+            (append T1 L2 T))
+
+((split _ () () ())) 
+ ((split X (H|T) (H | SMALL) BIG) 
+		(less H X )
+(!) 
+(split X T SMALL BIG)) 
+
+((split X (H|T) SMALL (H | BIG))
+(split X T SMALL BIG)) 
+
+((quickSort () () ))
+((quickSort (H | T) SORTED) 
+            (split H T SMALL BIG) 
+            (quickSort SMALL S) 
+            (quickSort BIG B) 
+            (append S (H|B) SORTED)) 

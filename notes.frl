@@ -1,0 +1,25 @@
+((print_house (COLOR COUNTRY DRINK OCCUPATION PET))(pp)(p "The man from " COUNTRY " lives in the " COLOR " house, drinks " DRINK",")(pp)(p " is a " OCCUPATION ", and owns a " PET"."))
+
+((print_street ())(pp)(pp "That's all folks!"))
+((print_street (HOUSE|HOUSES))
+    (print_house HOUSE)
+    (pp)
+    (print_street HOUSES))
+
+((who_drinks COUNTRY DRINK)
+    (street_is STREET)
+    (member (_ COUNTRY DRINK _ _) STREET)(!)
+    (pp)(p "The man from" COUNTRY "drinks" DRINK".")(pp))
+
+((who_drinks COUNTRY DRINK)
+    (street STREET)
+    (member (_ COUNTRY DRINK _ _) STREET)(!)
+    (pp) (p "The man from" COUNTRY "drinks" DRINK".")(pp))
+
+((who_drinks COUNTRY DRINK)
+    (street STREET)
+    (member (_ COUNTRY DRINK _ _) STREET)(!)
+    (pp) (p "The man from" COUNTRY "drinks" DRINK".")(pp))
+
+(who_drinks _ DRINK)
+    (pp)(p "Nobody drinks" DRINK ".'))

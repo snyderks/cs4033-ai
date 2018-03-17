@@ -11,7 +11,8 @@ the current path to be expanded starts with the goal node, that is:
 ((depthF (PAth | TPaths) SOL)
            (expand PAth  NPaths)
            (append NPaths TPaths NEWPATHS)
-           (depthF NEWPATHS SOL))
+           (depthF NEWPATHS SOL)
+           (kb_garbage))
  
 
 
@@ -22,10 +23,16 @@ remove the predicates operating on the knowledge base and replace go by
 path.  That is, from the predicate
 */
 
+((ppAll ()))
+((ppAll (H | T))(reverse H SOL)(pretty_print_solution SOL)(ppAll T))
+
 ((solve_all_wfa S G SOLUTIONS)
                              (kill goal)
                              (addcl ((goal G)) )
-                             (findall P ((go S P (S)))  SOLUTIONS)
+                             (findall P ((depthF ((S)) S1))  SOLUTIONS)
+                             (pp "Made it")
+                             (pp SOLUTIONS)
+                             (ppAll SOLUTIONS)
                              (delcl ((goal G)) ))
 
 %we will obtain:

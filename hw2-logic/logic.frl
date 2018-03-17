@@ -1,0 +1,170 @@
+% Homework 2
+% Kristian Snyder
+% Notes:
+% Unfortunately, I was unable to complete the problem,
+% as I could not determine how to perform a search of the
+% space involved but also avoid a combinatorial explosion
+% that would result in the problem never completing.
+% 
+% A valid state is determined with a combination of
+% no-duplicates (makes sure no house is a duplicate of another),
+% sman, sanimal, scandy, sdrink, scolor (makes sure none of the individual items are duplicated),
+% and rules, which implements the knowledge base's constraints.
+
+% The constraints that make it satisfied
+
+((no-duplicates ()))
+((no-duplicates (H | T))(pp "Checking member")(member H T)(pp "Was a member of the tail")(!)(fail))
+((no-duplicates (H | T))(pp "Checking man")(sman H T)(pp "Same man")(!)(fail))
+((no-duplicates (H | T))(pp "Checking animal")(sanimal H T)(pp "Same animal")(!)(fail))
+((no-duplicates (H | T))(pp "Checking candy")(scandy H T)(pp "Same candy")(!)(fail))
+((no-duplicates (H | T))(pp "Checking drink")(sdrink H T)(pp "Same drink")(!)(fail))
+((no-duplicates (H | T))(pp "Checking color")(scolor H T)(pp "Same color")(!)(fail))
+((no-duplicates (H | T))(pp "Checking tail")(no-duplicates T)(pp "All valid!"))
+
+% Format of the tuple
+% (man, animal, candy, drink, color)
+
+% Basic validity checks (modifies the member check)
+((sman (M1 _ _ _ _) ((M1 _ _ _ _) | _)))
+((sman H (_ | T))
+    (sman H T)) 
+((sanimal (_ A1 _ _ _) ((_ A1 _ _ _) | _)))
+((sanimal (_ | T))
+    (sanimal H T))
+((scandy (_ _ C1 _ _) ((_ _ C1 _ _) | _)))
+((scandy H (_ | T))
+    (scandy H T))
+((sdrink (_ _ _ D1 _) ((_ _ _ D1 _) | _)))
+((sdrink H (_ | T))
+    (sdrink H T))
+((scolor (_ _ _ _ C1) ((_ _ _ _ C1) | _)))
+((scolor H (_ | T))
+    (scolor H T))
+
+% Rule-based constraints
+% Allows states in which a constraint is not satisfied but there
+% is a location in which the correct value could be
+((rules LST)
+    (pp LST)
+    % The Englishman lives in the red house
+    (pp "Checking red english")
+    (redenglish LST)
+
+    (pp "Checking dog spaniard")
+    % The Spaniard owns the dog
+    (spaniard LST)
+
+    (pp "Checking Norwegian")    
+    % Norwegian lives in the first house on the left
+    (fst LST H)
+    (pp H)
+    (norwegian LST H)
+    % The green house is immediately to the right of the ivory house
+    (pp "Checking green next to ivory")
+    (greenivory LST)
+    % The man who eats Hershey bars lives in the house next to the man with the fox.
+    (hersheyfox LST)
+    % Kit-Kats are eaten in the yellow house.
+    (yellowkitkat LST)
+    % The Norwegian lives next to the blue house.
+    (norwegianblue LST)
+    % The Smarties eater owns snails.
+    (smartiessnails LST)
+    % The Snickers eater drinks orange juice.
+    (orangesnickers LST)
+    % The Ukrainian drinks tea.
+    (ukraniantea LST)
+    % The Japanese eats Milky-Ways.
+    (japanmilkyway LST)
+    % Kit-Kats are eaten in a house next to the house where the horse is kept.
+    (kitkathorse LST)
+    % Coffee is drunk in the green house.
+    (coffeegreen LST)
+    % Milk is drunk in the middle house.
+    (milk LST)
+
+
+)
+
+((redenglish LST) (member2 (englishman unk unk unk red) LST))
+((redenglish LST) (member2 (unk unk unk unk red) LST))
+((redenglish LST) (member2 (englishman unk unk unk unk) LST))
+((redenglish LST) (member2 (unk unk unk unk unk) LST))
+
+((spaniard LST) (member2 (spaniard dog unk unk unk) LST))
+((spaniard LST) (member2 (unk dog unk unk unk) LST))
+((spaniard LST) (member2 (spaniard unk unk unk unk) LST))
+((spaniard LST) (member2 (unk unk unk unk unk) LST))
+
+((norwegian LST H) (member2 (norwegian unk unk unk unk) (H)))
+
+((greenivory LST) (next_to (unk unk unk unk green) (unk unk unk unk ivory) LST))
+
+((hersheyfox LST) (adjacent (unk unk hershey unk unk) (unk fox unk unk unk) LST))
+
+((yellowkitkat LST) (member2 (unk unk kitkat unk yellow)))
+
+((norwegianblue LST) (next_to (norwegian unk unk unk unk) (unk unk unk unk blue)))
+
+((smartiessnails LST) (member2 (unk snails smarties unk unk)))
+
+((orangesnickers LST) (member2 (unk unk snickers oj unk)))
+
+((ukraniantea LST) (member2 (ukranian unk unk tea unk)))
+
+((japanmilkyway LST) (member2 (japanese unk milkyway unk unk)))
+
+((kitkathorse LST) (adjacent (unk unk kitkat unk unk) (unk horse unk unk unk)))
+
+((coffeegreen LST) (member2 (unk unk unk coffee green)))
+
+((milk (A B (_ _ _ milk _) D E)))
+
+
+
+% Sourced from list_pro.frl, tutorials, and documentation
+
+((length () 0))
+(
+    ( length ( HEAD | TAIL ) LISTSIZE )
+    ( length TAIL TEMPSIZE )
+    ( sum TEMPSIZE 1 LISTSIZE )
+)
+
+
+((equal () ()))
+((equal (unk | T1) (_ | T2))
+    (equal T1 T2))
+((equal (H1 | T1) (H2 | T2))
+    (stricteq H1 H2)
+    (equal T1 T2))
+
+((member H (H | _))(pp "Checking member head")
+(pp H))     % the head of a list is an element of that list
+
+((member E ( _| T ))                              
+	  (pp "Checking member tail")
+      (pp E) %  otherwise, E is an element of the list if it
+      (member E T))     % is an element of its tail
+
+((member2 H1 (H2 | _))
+    (equal H1 H2))
+((member2 E ( _| T ))             
+      (member2 E T))     % is an element of its tail
+
+((append () L L))       %when L1 is () L is the same as L2 
+((append (H1|T1) L2 (H2|T))
+    (equal H1 H2)
+    (append T1 L2 T))
+
+((next_to E1 E2 L) 
+    (append L1 (E1 E2 | T2) L))
+
+((adjacent E1 E2 L) 
+    (next_to E1 E2 L))
+
+((adjacent E1 E2 L) 
+    (next_to E2 E1 L))
+
+((fst (H | T) H))

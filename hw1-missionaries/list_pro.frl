@@ -1,0 +1,283 @@
+((member H (H|_)))     % the head of a list is an element of that list
+
+((member E ( _| T ))                              
+	    		%  otherwise, E is an element of the list if it
+      (member E T))     % is an element of its tail 
+
+
+
+/*
+(length LIST N) holds when N is the length of (number of elements in)
+ the list LIST:
+
+    The length of a non empty list is 1 + length of its tail;
+    The length of an empty list is 0. 
+    The length predicate makes use of the built in predicate sum  (sum X Y Z) holds when it is true 
+    that X+Y is equal to Z
+
+*/
+
+((length () 0 ))
+((length (_|T) N)
+           (length T N1)
+           (sum N1 1 N))
+
+
+
+
+/*
+(apppend L1 L2 L) holds if L is the list L1 followed by the list L2 .
+To write this predicate we note the following: 
+
+    the head of L is the same as the head of L1
+    the tail of L is the tail of L1 followed by L2
+
+*/
+
+
+
+((append () L L))  %when L1 is () L is the same as L2 
+
+((append (H1|T1) L2 (H1|T))
+            (append T1 L2 T))
+
+%using append to define member
+((member_append E L)
+             (append _ (E|_) L))
+
+
+
+
+/* lecture 4 predicates */
+
+/* 
+(substitute E1 OLD E2 NEW) holds if NEW is the list OLD in which all occurrences of E1 are substiutes by E2 
+*/ 
+
+((substitute _ () _ () )) 
+/* substituting anything in the empty list results in the ampty list */
+
+/* 
+substituting the element equl to the head of the list by a new element results in a list whose head is equal to the new element
+and the tail is obtained by substituting all occurrences of elements equal to the "old head" by the new element 
+*/ 
+ ((substitute H (H|T) H2 (H2 | T2)) 
+                       (substitute H T H2 T2) 
+                       (!)) 
+/* otherwise */
+((substitute H (H1|T1) H2 (H1|T2))
+          (substitute H T1 H2 T2))  % in a list with the same head as 
+                                    % the OLD list and a "new" tail, obtained 
+                                    % by the substitution 
+ 
+/* illustration of the use of the cut */
+((f X 2) 
+        (less 10 X)) 
+
+ ((f X 3) 
+            (negg less 10 X) 
+            (less 5 X)) 
+
+ ((f X 0 ) 
+            (negg less 5 X)) 
+   
+
+% We then redefine f as follows: 
+
+((f1 X 2) 
+        (less 10 X) 
+        (!)) 
+
+ ((f1 X 3) 
+         (negg less 10 X) 
+         (less 5 X) 
+        (!)) 
+
+ ((f1 X 0 ) 
+        (negg less 5 X)) 
+
+
+/* use of difference lists */
+
+/* 
+(rev X Y Z) holds if Z is the result of appending Y to the reverse of the list X; 
+This means that to have this predicate reverse the list X it should be invoked at the top level with Y equal to the empty list () . 
+We can use the same predicate with a different number of  arguments for the top level call to rev described above 
+*/ 
+
+ % R, the reverse of L is the same as () appended to the reverse of L 
+((rev L R)(rev L () R))
+  
+ % to append T2 to the reverse of (H|T1)is the same as appending 
+((rev (H|T1) T2 R)   
+        (rev T1 (H|T2) R))  %(H|T2) to the reverse of T1 
+
+((rev () R R))            % appending R to the reverse of () is R 
+
+
+
+/* LECTURE 5 predicates */
+
+/*
+(class N C)  holds if N is number in the class C, where C can be "positive" , "zero" , or "negative": 
+*/
+
+((class N positive)(less 0 N)) 
+((class 0 zero)) 
+((class N negative)(negg eq N 0)(negg less 0 N)) 
+  
+/* Now, a more efficient version 
+
+((class_cut N C)) same as (class N C) using the cut: 
+*/
+
+((class_cut N positive)(less 0 N)(!)) 
+((class_cut 0 zero)(!)) 
+((class_cut N negative)) 
+
+
+/* cut-fail combination */
+
+
+((my_neg P)P(!)(fail))  % fail when P succeeds 
+((my_neg     _  )) %otherwise succeed 
+
+
+
+
+
+
+% "Ann likes all animals except snakes" 
+
+((likes Ann X)(snake X)(!)(fail)) 
+((likes Ann X)(animal X)) 
+
+% using the bip negg this would be written as: 
+
+((likes Ann X)(animal X)(negg snake X)) 
+
+% "Ann likes everything except snakes" 
+
+((likes Ann X)(snake X)(!)(fail)) 
+((likes Ann _ )) 
+
+% using the bip negg this would be written as: 
+
+((likes Ann X)(negg snake X)) 
+
+
+
+/* ADVANCED LIST PROCESSING */
+
+/* (max_list M L) holds if M is the largest element in the list L; 
+It makes use of the predicate (max X Y M) which holds when M is the largest 
+of X and Y; if X=Y then M is also X (or Y). 
+*/
+
+((max1 X Y M)(eq X Y)(eq M X)) 
+
+((max1 X Y M)(less X Y)(eq M Y)) 
+
+% Better definition: 
+
+((max2 X X X)) 
+
+((max2 X Y Y)(less X Y)) 
+
+((max2 X Y X)(negg less X Y)) 
+
+
+/* If we just remove (negg less X Y) from the last clause the resulting 
+predicate will not work correctly: 
+*/
+((max3 X X X)) 
+
+((max3 X Y Y)(less X Y))      %%%%    WRONG DEFINITION!!!!! 
+
+((max3 X Y X)) 
+
+
+((max4 X X X)) 
+
+((max4 X Y Y)(!)(less X Y)) 
+
+((max4 X Y X)) 
+
+
+
+
+((max X X X)(!)) % max of two equal values is their common value 
+
+((max X Y Y)(less X Y)(!)) % max of two unequal values is the largest of these 
+
+((max X Y X)) 
+
+
+
+
+/* (less_than_eq X Y) holds if X is less than Y */ 
+
+((less_than_eq X X)) 
+
+((less_than_eq X Y) (less X Y)) 
+
+
+
+% Now we write the final max predicate: 
+
+((Max X Y Y) 
+              (less_than_eq X Y) 
+             (!)) 
+
+((Max X Y X) 
+             (less_than_eq Y X)) 
+
+
+/* (ordered L) holds if L is ordered in increasing order ; 
+the empty list is always ordered; the list with
+one element is always ordered */ 
+
+((ordered ())) 
+
+((ordered (_))) 
+
+((ordered (E1 E2 |T)) 
+           (less_than_eq E1 E2) 
+           (ordered (E2|T))) 
+
+
+/* (ordered_dec L) if L is ordered in decreasing order: 
+its reverse is ordered in increasing order */ 
+
+((ordered_dec L) 
+           (reverse L L1) 
+           (ordered L1)) 
+
+
+
+
+
+((ordered2 () _ )) % the empty list is ordered in ANY order 
+
+((ordered2 (_) _ )) % the list with one element is ordered in ANY order 
+
+((ordered2 (E1 E2 |T) ORDER ) 
+           (ORDER E1 E2) 
+          (ordered2 (E2|T) ORDER )) 
+
+
+
+
+
+
+
+ ((subst H (H|T) H2 (H2 | T2))
+                       (subst H T H2 T2)
+                      (!))
+
+((subst _ () _ () ))
+
+((subst H (H1|T1) H2 (H1|T2))
+          (subst H T1 H2 T2))  % in a list with the same head as
+                                    % the OLD list and a "new" tail, obtained
+                                    % by the substitution

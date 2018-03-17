@@ -5,6 +5,7 @@
  * reload "depth_first.frl" (sample file given)
  * reload "part2-river.frl" (successor function, invalidation testing)
  * ?((solve_DF (n n n n n n n) (s s s s s s s) S))
+ * ?((solve_BF (n n n n n n n) (s s s s s s s) S))
  * ^ means try and move the missionaries, the cannibals, and the boat from the north to the south
  */
 
@@ -139,3 +140,19 @@
 ((opp n s))
 ((opp s n))
 
+((solve (s s s s s s s) _ VISITED )
+  (p 'done'))
+((solve A B VISITED)
+  (path A C)
+  (neg (member C VISITED))
+  (pp)(p A C)
+  (solve C B (C | VISITED))
+)
+
+% Sourced from list_pro.frl
+
+((member H (H | _)))     % the head of a list is an element of that list
+
+((member E ( _| T ))                              
+	    		%  otherwise, E is an element of the list if it
+      (member E T))     % is an element of its tail 

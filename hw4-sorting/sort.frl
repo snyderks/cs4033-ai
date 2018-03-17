@@ -1,0 +1,166 @@
+/*
+ * Assignment 4
+ * Kristian Snyder
+ * 19 March 2018
+ * 
+ * To run: reload "sort.frl"
+ * No dependencies required.
+ */
+
+/************
+* Utilities *
+*************/
+((append () L L))  %when L1 is () L is the same as L2 
+((append (H1|T1) L2 (H1|T))
+    (append T1 L2 T))
+
+((length () 0 ))
+((length (_|T) N)
+    (length T N1)
+    (sum N1 1 N))
+
+% fst splits a list into the first and rest of the list.
+((fst () _ ()))
+((fst (H | T) H T))
+((fst (H) H ()))
+
+/**************
+* Bubble sort *
+***************/
+((greater_than X Y) 
+           (less Y X)) 
+
+/*swap the first two elements if they are not in order*/ 
+ ((swap (X Y|T) (Y X | T)) 
+            (greater_than X Y)) 
+
+/* swap elements in the tail */ 
+ ((swap (H | T) (H | T1)) 
+              (swap T T1)) 
+/* Note that swap assumes that it will never be called on the empty list */
+
+
+((bubbleSort L SL)
+    (pp "small sort is bubble sort")
+    (swap L L1) % at least one swap is needed 
+    (!) 
+    (bubbleSort L1 SL)) 
+
+((bubbleSort L L)
+    (pp "small sort is bubble sort")) % the list is already sorted
+
+/*****************
+* Insertion sort *
+******************/
+/*(insert E SL SLE) holds when SLE is the list obtained 
+by inserting the element E in the sorted list SL. An element smaller than H is inserted at the front of the list 
+*/
+((insert X () (X))) 
+
+((insert E (H | T) (E H | T)) 
+                        (ordered T less)
+                        (less E H) 
+                        (!)) 
+
+((insert E (H|T) (H|T1)) 
+            (ordered T less)
+            (insert E T T1)) 
+  
+((ordered () _ )) % the empty list is ordered in ANY order 
+((ordered (_) _ )) %the list with 1 element is ordered in ANY order 
+((ordered (E1 E2 |T) ORDER ) 
+           (ORDER E1 E2) 
+          (ordered (E2|T) ORDER))
+/* insertion sort makes use of insert */ 
+((insertionSort () ()) % the empty list is sorted 
+    (pp "small sort is insertion sort"))
+((insertionSort (H|T) SORTED) %insert the head of the list into the sorted 
+    (insertionSort T T1) % tail of the list 
+    (insert H T1 SORTED)
+    (pp "small sort is insertion sort"))
+
+/*************
+* Merge sort *
+**************/
+((mergeSort () ()))   % the empty list is sorted 
+((mergeSort (X) (X))(!))
+((mergeSort L SL) 
+             (split_in_half L L1 L2) 
+             (mergeSort L1 S1) 
+             (mergeSort L2 S2) 
+             (merge S1 S2 SL)) 
+
+((split_in_half (X) () (X))) 
+((split_in_half L L1 L2) 
+             (length L N) 
+             (division N 2 N1) 
+             (length L1 N1) 
+             (append L1 L2 L)) 
+
+/* (merge S1 S2 S) S1 interleaved with S2 results in S */
+((merge () L L))
+((merge L () L))
+((merge (H1|T1) (H2|T2) (H1 | T))
+	(less H1 H2)
+	(merge T1 (H2|T2) T))
+
+((merge (H1|T1) (H2|T2) (H2|T))
+	(negg less H1 H2)
+	(merge (H1|T1) T2 T))
+
+/************
+* Quicksort *
+*************/
+((split _ () () ())) 
+
+((split X (H|T) (H | SMALL) BIG) 
+    (less H X)(!) 
+    (split X T SMALL BIG)) 
+
+((split X (H|T) SMALL (H | BIG))
+    (split X T SMALL BIG)) 
+
+((quickSort () ()))
+((quickSort (H | T) SORTED) 
+    (split H T SMALL BIG) 
+    (quickSort SMALL S) 
+    (quickSort BIG B) 
+    (append S (H|B) SORTED)) 
+
+/**************
+* Hybrid sort *
+***************/
+((hybridSort LIST SMALL BIG T SLIST)
+    (pp "Checking length")
+	(length LIST L)
+    (p "Got length" L)
+    (pp "")
+	(less L T) % try it with and w/o the cut
+    (p "Using small sort for length" L "- ")
+    (SMALL LIST SLIST))
+
+((hybridSort LIST SMALL mergeSort T SLIST)
+    (pp "Above threshold. Using mergesort")
+	(split_in_half LIST L1 L2)
+    (p "Split into two lists:" L1 L2)
+    (pp "")
+    (hybridSort L1 SMALL mergeSort T S1)
+    (hybridSort L2 SMALL mergeSort T S2)
+    (merge S1 S2 SLIST))
+
+((hybridSort LIST SMALL quickSort T SLIST)
+	(pp "Above threshold. Using quicksort")
+    % retrieve the first element of the list 
+    % and the rest of the list
+    (fst LIST X RST)
+    % split the list using quickSort pivot split
+    (split X RST L1 L2)
+    (p "Split into two lists:" L1 L2)
+    (pp "")
+    % call recursive sorts on each portion
+    (hybridSort L1 SMALL quickSort T S1)
+    (hybridSort L2 SMALL quickSort T S2)
+    % rejoin the two sorted portions, using X as the middle
+    (append S1 (X|S2) SLIST))
+
+

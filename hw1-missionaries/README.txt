@@ -1,3 +1,7 @@
+Submission by Kristian Snyder
+Part 1 is located at part1.pdf, with source at part1.md.
+Example run of part 2 is in proof.png.
+
 To run part 2 (this info is also in part2-river.frl):
 
 1. Open FRIL REPL

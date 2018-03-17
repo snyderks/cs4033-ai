@@ -1,0 +1,22 @@
+((greater_than X Y) 
+                           (less Y X)) 
+
+/*swap the first two elements if they are not in order*/ 
+
+((swap (X Y|T) (Y X | T)) 
+                            (greater_than X Y)) 
+
+/* swap elements in the tail */ 
+
+((swap (H | T) (H | T1)) 
+                           (swap T T1)) 
+
+/* Note that swap assumes that it will never be called on the empty list */
+
+((bubble_sort L SL) 
+                  (swap L L1) % at least one swap is needed 
+                  (!) 
+                  (bubble_sort L1 SL)) 
+
+((bubble_sort L L)) % the list is already sorted 
+
