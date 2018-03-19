@@ -41,13 +41,11 @@
 
 
 ((bubbleSort L SL)
-    (pp "small sort is bubble sort")
     (swap L L1) % at least one swap is needed 
     (!) 
     (bubbleSort L1 SL)) 
 
-((bubbleSort L L)
-    (pp "small sort is bubble sort")) % the list is already sorted
+((bubbleSort L L)) % the list is already sorted
 
 /*****************
 * Insertion sort *
@@ -72,12 +70,10 @@ by inserting the element E in the sorted list SL. An element smaller than H is i
            (ORDER E1 E2) 
           (ordered (E2|T) ORDER))
 /* insertion sort makes use of insert */ 
-((insertionSort () ()) % the empty list is sorted 
-    (pp "small sort is insertion sort"))
+((insertionSort () ())) % the empty list is sorted 
 ((insertionSort (H|T) SORTED) %insert the head of the list into the sorted 
     (insertionSort T T1) % tail of the list 
-    (insert H T1 SORTED)
-    (pp "small sort is insertion sort"))
+    (insert H T1 SORTED))
 
 /*************
 * Merge sort *
@@ -136,7 +132,8 @@ by inserting the element E in the sorted list SL. An element smaller than H is i
     (p "Got length" L)
     (pp "")
 	(less L T) % try it with and w/o the cut
-    (p "Using small sort for length" L "- ")
+    (p "Using small sort for length" L)
+    (pp "")
     (SMALL LIST SLIST))
 
 ((hybridSort LIST SMALL mergeSort T SLIST)
